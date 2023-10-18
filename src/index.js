@@ -1,5 +1,12 @@
 const express = require('express');
 const app = express();
+const bodyparser = require("body-parser");
+const LocalStorage = require("node-localstorage").LocalStorage;
+var local = new LocalStorage('./scratch');
+let urlItem = "", id = 0, count = 0;
+
+app.use(bodyparser.urlencoded({ extended: true }));
+app.use(bodyparser.json());
 
 const isValidUrl = (urlString) => {
   var urlPattern = new RegExp(
@@ -15,7 +22,29 @@ const isValidUrl = (urlString) => {
 };
 
 app.post("/api/shorturl", function(req, res) {
-  console.log('Hello World')
+  urlItem = JSON.parse(local.getItem(req.body.url));
+
+  if (existsUrl(req.body.url, urlItem?.short_url) != null) {
+    res.json(urlItem);
+  }
+
+  if (existsUrl(req.body.url, urlItem?.short_url) == null && isValidUrl(req.body.url)) {
+    local.setItem(req.body.url, JSON.stringify(
+      {
+        original_url: req.body.url,
+        short_url: ++id
+      }
+    ));
+
+    urlItem = JSON.parse(local.getItem(req.body.url));
+    res.json(urlItem);
+  }
+
+  if (isValidUrl(req.body.url) === false) {
+    res.json({
+      error: "Invalid URL",
+    });
+  }
 });
 
 app.listen(3000);
