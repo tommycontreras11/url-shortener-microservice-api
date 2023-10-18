@@ -8,6 +8,11 @@ let urlItem = "", id = 0, count = 0;
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
 
+const existsUrl = (urlString, id) => {
+  urlItem = JSON.parse(local.getItem(urlString));
+  return urlItem?.short_url === id ? urlItem : null;
+};
+
 const isValidUrl = (urlString) => {
   var urlPattern = new RegExp(
     "^(https?:\\/\\/)?" + // validate protocol
