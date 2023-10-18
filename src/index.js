@@ -13,6 +13,24 @@ const existsUrl = (urlString, id) => {
   return urlItem?.short_url === id ? urlItem : null;
 };
 
+app.get("/api/shorturl/:short_url", function(req, res) {
+  id = parseInt(req.params.short_url);
+  count = 0;
+
+  for (let i = 0; i < local.length; i++) {
+    if ((JSON.parse(local.getItem(local.key(i))).short_url == id) === true) {
+      urlItem = JSON.parse(local.getItem(local.key(i)));
+      res.redirect(urlItem.original_url);
+      count++;
+    }
+  }
+  if (count == 0) {
+    res.json({
+      error: "No short URL found for the given input",
+    });
+  }
+});
+
 const isValidUrl = (urlString) => {
   var urlPattern = new RegExp(
     "^(https?:\\/\\/)?" + // validate protocol
